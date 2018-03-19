@@ -1,0 +1,16 @@
+# depslib dependency file v1.0
+1484465179 source:d:\c++ things\pl 3.1\main.cpp
+	<iostream>
+	<fstream>
+	<string>
+	<set>
+	"user.h"
+
+1484464546 d:\c++ things\pl 3.1\include\user.h
+	<string>
+
+1484458296 source:d:\c++ things\pl 3.1\src\user.cpp
+	"user.h"
+	<iostream>
+	<string>
+

@@ -1,0 +1,18 @@
+# depslib dependency file v1.0
+1489633970 source:d:\c++ things\algs 3\main.cpp
+	<iostream>
+	<vector>
+	<fstream>
+	<algorithm>
+	<list>
+	"Point.h"
+
+1489338754 source:d:\c++ things\algs 3\src\point.cpp
+
+1489625824 d:\c++ things\algs 3\include\point.h
+	<math.h>
+	<vector>
+	<tuple>
+
+1489985009 source:d:\c++ things\algs 3\src\line.cpp
+

@@ -1,0 +1,20 @@
+# depslib dependency file v1.0
+1490155830 source:d:\c++ things\8puzzle\src\board.cpp
+
+1492839382 source:d:\c++ things\8puzzle\main.cpp
+	<iostream>
+	"Board.h"
+	<queue>
+	<vector>
+	<set>
+	<algorithm>
+	<memory>
+
+1492881545 d:\c++ things\8puzzle\include\board.h
+	<iostream>
+	<vector>
+	<fstream>
+	<utility>
+	<stdlib.h>
+	<memory>
+
