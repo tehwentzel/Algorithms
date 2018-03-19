@@ -16,3 +16,26 @@
 
 1489985009 source:d:\c++ things\algs 3\src\line.cpp
 
+1521474860 source:f:\skool\algorithms\sorting\main.cpp
+	<iostream>
+	<vector>
+	<fstream>
+	<algorithm>
+	<unordered_set>
+	<set>
+	"Point.h"
+	"Line.h"
+
+1521474908 f:\skool\algorithms\sorting\include\point.h
+	<math.h>
+	<vector>
+	<tuple>
+	<functional>
+
+1503807712 f:\skool\algorithms\sorting\include\line.h
+	<vector>
+	"Point.h"
+	<iostream>
+
+1503807712 source:f:\skool\algorithms\sorting\src\line.cpp
+

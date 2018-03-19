@@ -1,5 +1,5 @@
 #include <iostream>
-#include "Board.h" //This file appears to have disappeared
+#include "Board.h"
 #include <queue>
 #include<vector>
 #include<set>
@@ -64,7 +64,6 @@ int main()
     auto curr = snode1.parent;
     while(curr != nullptr){
         cout << *curr << endl;
-        cout << (*curr).dist << endl << endl;
         curr = (*curr).parent;
     }
 }

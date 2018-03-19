@@ -39,7 +39,7 @@ int main()
 {
     fstream file;
     vector<Point> points;
-    file.open("input200.txt");
+    file.open("test.txt");
     int numpoints;
     file >> numpoints;
     double p1;
@@ -68,9 +68,8 @@ int main()
             }
         }
     }
+    cout << "Sorted point sets (minimal): " << std::endl;
     for(auto seg: lines){
             cout << seg << endl;
         }
-        cout << endl;
-    cout << lines.size() << endl;
 }

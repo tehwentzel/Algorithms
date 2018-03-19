@@ -18,3 +18,30 @@
 	<stdlib.h>
 	<memory>
 
+1521469750 source:f:\skool\algorithms\a-star search\main.cpp
+	<iostream>
+	"Board.h"
+	<queue>
+	<vector>
+	<set>
+	<algorithm>
+	<memory>
+
+1503804116 f:\skool\algorithms\a-star search\include\board.h
+	<iostream>
+	<vector>
+	<fstream>
+	<utility>
+	<stdlib.h>
+	<memory>
+
+1503804116 source:f:\skool\algorithms\a-star search\src\board.cpp
+
+1503804116 f:\skool\algorithms\a-star search\board.h
+	<iostream>
+	<vector>
+	<fstream>
+	<utility>
+	<stdlib.h>
+	<memory>
+

@@ -98,11 +98,11 @@ public:
                 }
             }
         }
-
+        std::cout << "Brute Force Point Sets: " << std::endl;
         for(auto tuppy: lines){
             std::cout << std::get<0>(tuppy) << " " << std::get<1>(tuppy) << " " << std::get<2>(tuppy) << " " << std::get<3>(tuppy) << std::endl;
         }
-        std::cout << numlines << std::endl;
+        std::cout << std::endl;
     }
 };
 

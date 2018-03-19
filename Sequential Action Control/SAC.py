@@ -4,30 +4,30 @@ import scipy.interpolate
 import numpy as np
 import matplotlib.pyplot as plt
 import math
-import time
 
-m = 1
+#Define the initial conditions
+m = 1 #mass of pendulum and cart
 g = 9.8
-height = 1
-a_d_init = -25000
+height = 1 #length of pendulum arm
+a_d_init = -25000 #metaparameder
 beta = .6 #weight for calculating J_tau
-t_start = 0
-x_start = np.array([np.pi,0,0,0])
-w = 1.2
-T = .3
-t_calc = .003
-ts = .1
-default_duration = T/100
-dJ_min = a_d_init/10
-k_max = 50
-duration_max = 2*T
+t_start = 0 #starting time
+x_start = np.array([np.pi,0,0,0]) #starting position, format in [pendulum angle, cart position, pendulum velocity, cart velocity]
+w = 1.2 #metaparameter
+T = .3#size of a time-horizon
+t_calc = .003 #simulated calculation time
+ts = .1 #position sample time
+default_duration = T/100 #baseline duration for the control effort length
+dJ_min = a_d_init/10 #design parameter
+k_max = 50 #design parameter
+duration_max = 2*T #maximum time to input control effor
 
 integration_steps = 25 #default steps to plug into odeint, odeint default-defaults to 50
 
-u2_max = 50
+u2_max = 50 #cutoff values for control effor
 u2_min = -50
 
-#default weights
+#default weight matrices
 q_default = np.diag([1000,100,0,0])
 r_default = np.array([.3])
 p_default = np.diag([500,0,0,0])
@@ -39,19 +39,19 @@ class Weights:
         self.p = p
         self.r = r
         self.q = q
-        
+
     def getP(self):
         return(self.p)
 
     def getQ(self):
         return(self.q)
-    
+
     def getR(self):
         return(self.r)
-    
+
 test = [x_start]
 class FreeDynamics:
-
+    #models the uncomtrolled dynamics of the cart-pendulum for use in the model predictive step
     def __init__(self,initial_position  = x_start , initial_time = t_start, final_time = t_start + T, nsolve_steps = integration_steps):
         self.initial_position = initial_position
         self.initial_time = initial_time
@@ -61,25 +61,25 @@ class FreeDynamics:
         self.pos = self.simulateX() #gives an array of x values at discrete points in nd-array
         self.pos_func = scipy.interpolate.interp1d(self.t_array,self.pos,axis=0,fill_value='extrapolate') #gives an interpolation of the function of x(t) for use in getting rho *using default interpolation, but cubic should be better for more course meshes
         self.rho = self.simulateRho() #gives rho in disrecte steps as an nd-array
-        
+
     def get_t0(self):
         return(self.initial_time)
-        
+
     def get_tf(self):
         return(self.final_time)
-    
+
     def get_x0(self):
         return(self.initial_position)
-        
+
     def get_times(self):
         return(self.t_array)
-    
+
     def f1(self, pos_cur, t0): ##f1 function for use with odeint and solving for x
         f1 = np.array([pos_cur[1], (g/height)*math.sin(pos_cur[0]), pos_cur[3], 0])
         return(f1)
 
     def simulateX(self): #get free dynamics of f in time points of ts (for now)
-        #Returns the free dynamics overs the given time horizon, in discrete steps given by integartion steps       
+        #Returns the free dynamics overs the given time horizon, in discrete steps given by integartion steps
         #variable as an (steps,len(x)) size ndarray
         pos = scipy.integrate.odeint(self.f1, self.initial_position, self.t_array)
         return(pos)
@@ -87,7 +87,7 @@ class FreeDynamics:
     def X(self,t): #because the internet tells me to allways use getters instead of accessing attributes
         #will return X(t) as an interpolated function
         return(self.pos_func(t))
-    
+
     def rhodot(self, rho, t):
         rho = rho.reshape(4,1)#reshpae rho so the matrix math works -> broadcasting casues issues
         pos_cur = self.X(t)
@@ -111,9 +111,9 @@ class FreeDynamics:
         rho = scipy.integrate.odeint(self.rhodot, rhof, t_reversed)
         assert(rho.shape == (self.pos).shape)
         return(rho)
-        
+
 class ControlledDynamics:
-    
+    #Models the system dynamics after control effort is applied
     def __init__(self, u, initial_position  = x_start , initial_time = t_start, final_time = t_start + T, nsolve_steps = integration_steps):
         self.u = u
         self.initial_position = initial_position
@@ -123,16 +123,16 @@ class ControlledDynamics:
         self.t_array = np.linspace(self.initial_time, self.final_time, self.nsolve_steps) #get an array of time steps to evaluate x and rho at
         self.pos = self.simulateX() #gives an array of x values at discrete points in nd-array
         self.pos_func = scipy.interpolate.interp1d(self.t_array,self.pos,axis=0,fill_value='extrapolate') #gives an interpolation of the function of x(t) for use in getting rho *using default interpolation, but cubic should be better for more course meshes
-        
+
     def get_t0(self):
         return(self.initial_time)
-        
+
     def get_tf(self):
         return(self.final_time)
-    
+
     def get_x0(self):
         return(self.initial_position)
-        
+
     def get_times(self):
         return(self.t_array)
 
@@ -141,7 +141,7 @@ class ControlledDynamics:
         return(f1)
 
     def simulateX(self): #get free dynamics of f in time points of ts (for now)
-        #Returns the free dynamics overs the given time horizon, in discrete steps given by integartion steps       
+        #Returns the free dynamics overs the given time horizon, in discrete steps given by integartion steps
         #variable as an (steps,len(x)) size ndarray
         global whatup
         pos, whatup = scipy.integrate.odeint(self.f1, self.initial_position, self.t_array, full_output = 1)
@@ -150,10 +150,10 @@ class ControlledDynamics:
     def X(self,t): #because the internet tells me to always use getters instead of accessing attributes
         #will return X(t) as an interpolated function
         return(self.pos_func(t))
-    
-    
-class SAC:
 
+
+class SAC:
+    #implements the controller
     def __init__(self, free_system): #takes a FreeDynamics class as an argument
         self.initial_time = free_system.initial_time
         self.final_time = free_system.final_time
@@ -267,6 +267,7 @@ class SAC:
         return((time_points, new_dynamics))
 
     def find_Duration(self, duration, dJ_min = dJ_min, k_max = k_max):
+        #calculated the optimal durration to implement the control action
         k = 0
         J_new = np.inf
         while((J_new - self.J1_init > -self.J1_init*.1) and (duration < 2*T) ):
@@ -285,61 +286,26 @@ class SAC:
                 duration = default_duration
                 break
             k += 1
-        self.J1_f = J_new
         return(duration)
 
-def run(a_d_init,beta,w,T,default_duration,aJ_min,k_max,duration_max,integration_steps,q_default,r_default,p_default)
-    m = 1
-    g = 9.8
-    height = 1
-    # a_d_init = -25000
-    # beta = .6 #weight for calculating J_tau
-    t_start = 0
-    x_start = np.array([np.pi,0,0,0])
-    # w = 1.2
-    # T = .3
-    t_calc = .003
-    ts = .1
-    # default_duration = T/100
-    # dJ_min = a_d_init/10
-    # k_max = 50
-    # duration_max = 2*T
-
-    # integration_steps = 25 #default steps to plug into odeint, odeint default-defaults to 50
-
-    u2_max = 50
-    u2_min = -50
-
-    #default weights
-    # q_default = np.diag([1000,100,0,0])
-    # r_default = np.array([.3])
-    # p_default = np.diag([500,0,0,0])
-
-
-    weights = Weights()
-    system = FreeDynamics()
-    # t_hist = []
-    # x_hist = []
-    J_tot = 0
-    t0 = system.get_t0()
-    x0 = system.initial_position
-    dJ_ref = 0
-    while t0 < 15:
-        freeSys = FreeDynamics(x0,t0,t0+T)
-        control = SAC(freeSys)
-        if(t0 == t_start):
-            dJ_ref = control.J1_init
-        t_curr = control.action_result[0]
-        x_curr = control.action_result[1]
-        # t_hist.append(t_curr)
-        # x_hist.append(x_curr)
-        J_tot += control.J1_f
-        t0 = t_curr[-1]
-        x0 = x_curr[-1]
-    return(J_tot,control.J1_f)
-
-def timecost(min_J):
-    t0 = time()
-    J,Jf = run(ta_d_init,tbeta,tw,tT,tdefault_duration,taJ_min,tk_make,tduration_max,tintegration_steps,tq_default,tr_default,tp_default)
-    tf = time() - t0
-    return(J*tf*Jf)
+## This code implements the algorithm and prints out the resulting calulated displacment x = [arm angle, cart position] around equilibrium
+#weights = Weights()
+#system = FreeDynamics()
+#t_hist = []
+#x_hist = []
+#t0 = system.get_t0()
+#x0 = system.initial_position
+#dJ_ref = 0
+#while t0 < 20:
+#    freeSys = FreeDynamics(x0,t0,t0+T)
+#    control = SAC(freeSys)
+#    if(t0 == t_start):
+#        dJ_ref = control.J1_init
+#    t_curr = control.action_result[0]
+#    x_curr = control.action_result[1]
+#    t_hist.append(t_curr)
+#    x_hist.append(x_curr)
+#    t0 = t_curr[-1]
+#    x0 = x_curr[-1]
+#plt.plot(np.concatenate(t_hist),[x[0:2] for x in np.concatenate(x_hist)])
+#plt.show()

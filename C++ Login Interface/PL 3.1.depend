@@ -14,3 +14,18 @@
 	<iostream>
 	<string>
 
+1484465179 source:f:\skool\algorithms\c++ login interface\main.cpp
+	<iostream>
+	<fstream>
+	<string>
+	<set>
+	"user.h"
+
+1484464546 f:\skool\algorithms\c++ login interface\include\user.h
+	<string>
+
+1484458296 source:f:\skool\algorithms\c++ login interface\src\user.cpp
+	"user.h"
+	<iostream>
+	<string>
+
